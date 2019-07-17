@@ -20,18 +20,78 @@ public class CSVReader
         Debug.Log("CSVReader is reading " + file); // Print filename, make sure parsed correctly
 
         var list = new List<Dictionary<string, object>>(); //declare dictionary list
-
+        
         TextAsset data = Resources.Load(file) as TextAsset; //Loads the TextAsset named in the file argument of the function
 
-        //Debug.Log("Data loaded:" + data); // Print raw data, make sure parsed correctly
+        Debug.Log("TextAsset Data loaded:\n" + data); // Print raw data, make sure parsed correctly
 
         var lines = Regex.Split(data.text, LINE_SPLIT_RE); // Split data.text into lines using LINE_SPLIT_RE characters
 
         if (lines.Length <= 1) return list; //Check that there is more than one line
 
-        var header = Regex.Split(lines[0], SPLIT_RE); //Split header (element 0)
+        string [] headers = Regex.Split(lines[0], SPLIT_RE); //Split header (element 0)
+        Debug.Log("headers:\n" + string.Join(", ",headers));
 
-        // Loops through lines
+        /*TODO: Add UI field that allows the keying value to be selected */
+        var dict = new Dictionary<string, object>(); //Put all data in a dictionary keyed by e.g. OBJECTID
+        
+        // New way: Loop through lines to add to Dictionary
+        for (var i = 1; i < lines.Length; i++)
+        {   
+            Debug.Log("line #"+i+": " + lines[i]);
+            var values = Regex.Split(lines[i], SPLIT_RE); //Split lines according to SPLIT_RE, store in var (usually string array)
+            if (values.Length == 0 || values[0] == "") {
+                Debug.Log("Values len ==0 ");
+                continue; // Skip to end of loop (continue) if value is 0 length OR first value is empty
+            }
+            
+            if (values.Length != headers.Length) {
+                Debug.Log("Header count and values count mismatch");
+                continue; // Skip to end of loop (continue) if value is 0 length OR first value is empty
+            }
+
+            var valuesObject = new {
+                field1 = "test field1",
+                field2 = 1234
+            };
+
+            // Loop through every header
+            for (var j = 0; j < headers.Length && j < values.Length; j++)
+            {
+                string value = values[j]; // Set local variable value
+                value = value.TrimStart(TRIM_CHARS).TrimEnd(TRIM_CHARS).Replace("\\", ""); // Trim characters
+                object finalvalue = value; //set final value
+                            
+
+                // int n; // Create int, to hold value if int
+
+                // float f; // Create float, to hold value if float
+
+                // // If-else to attempt to parse value into int or float
+                // if (int.TryParse(value, out n))
+                // {
+                //     finalvalue = n;
+                // }
+                // else if (float.TryParse(value, out f))
+                // {
+                //     finalvalue = f;
+                // }
+                //entry[headers[j]] = finalvalue;
+                
+            }
+
+            dict.Add(values[0], valuesObject);
+            Debug.Log("Dict entry "+values[0]);//" : "+dict[values[0]]);
+            //
+            
+            
+            
+            // var entry = new { Field1 = i };
+            // dict.Add(""+i, entry);           
+        }
+
+
+        // Old way: Loop through lines to create a List of Dictionarys
         for (var i = 1; i < lines.Length; i++)
         {
 
@@ -41,7 +101,7 @@ public class CSVReader
             var entry = new Dictionary<string, object>(); // Creates dictionary object
 
             // Loops through every value
-            for (var j = 0; j < header.Length && j < values.Length; j++)
+            for (var j = 0; j < headers.Length && j < values.Length; j++)
             {
                 string value = values[j]; // Set local variable value
                 value = value.TrimStart(TRIM_CHARS).TrimEnd(TRIM_CHARS).Replace("\\", ""); // Trim characters
@@ -60,7 +120,7 @@ public class CSVReader
                 {
                     finalvalue = f;
                 }
-                entry[header[j]] = finalvalue;
+                entry[headers[j]] = finalvalue;
             }
             list.Add(entry); // Add Dictionary ("entry" variable) to list
         }
