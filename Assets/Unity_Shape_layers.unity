@@ -23895,7 +23895,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 414725582}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 50}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 325840023}
@@ -23903,9 +23903,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -100, y: 300}
+  m_AnchoredPosition: {x: -300, y: 50}
   m_SizeDelta: {x: 800, y: 80}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0.1, y: 0.1}
 --- !u!114 &414725584
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23932,7 +23932,7 @@ MonoBehaviour:
     m_BestFit: 1
     m_MinSize: 20
     m_MaxSize: 60
-    m_Alignment: 0
+    m_Alignment: 6
     m_AlignByGeometry: 1
     m_RichText: 0
     m_HorizontalOverflow: 0
@@ -32067,6 +32067,18 @@ Prefab:
     - target: {fileID: 100386, guid: bbe553628a5e24887bdfd0bec4ab9938, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400288, guid: bbe553628a5e24887bdfd0bec4ab9938, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1.314
+      objectReference: {fileID: 0}
+    - target: {fileID: 400288, guid: bbe553628a5e24887bdfd0bec4ab9938, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.434
+      objectReference: {fileID: 0}
+    - target: {fileID: 400288, guid: bbe553628a5e24887bdfd0bec4ab9938, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bbe553628a5e24887bdfd0bec4ab9938, type: 3}
@@ -69518,7 +69530,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b993a3907cdd802479678bc38eec9b49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inputFile: dcc_development_planning_sorted_csv
+  inputFile: DEVPlanCSV
+  inputKey: GUID
 --- !u!4 &1310373547
 Transform:
   m_ObjectHideFlags: 0
@@ -111871,7 +111884,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 100000
-  field of view: 60
+  field of view: 116
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
@@ -111896,7 +111909,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 2103870594}
   m_LocalRotation: {x: 0.69933546, y: -0, z: -0, w: 0.7147936}
-  m_LocalPosition: {x: -86, y: 654, z: 5}
+  m_LocalPosition: {x: -86, y: 1000, z: 50}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
