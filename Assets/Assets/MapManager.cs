@@ -44,19 +44,20 @@ public class MapManager : MonoBehaviour
 		MeshRenderer mr = objClicked.GetComponent<MeshRenderer> ();
 		mr.material.color = mouseDownColor;
 		zi.GetComponent<Text> ().text = "---";
-		List <string> stringList = new List <string> ();
-		stringList = mdm.GetZoneInfo(objClicked.name);
-		Debug.Log ("stringList: " + stringList[0]);
+		
+		Dictionary <string, string> record = new Dictionary <string, string> ();
+		record = mdm.GetZoneInfo(objClicked.name);
+		Debug.Log ("MapManager | record: " + record);
 
 		int idx = 0;
-		foreach(string s in stringList){
-			Debug.Log ("s: " + s);
+		foreach(var datum in record){
+			Debug.Log ("datum: " + datum);
 			// GameObject tClone = Instantiate (zi);//, new Vector3(300, -200+(idx * 75), 0), Quaternion.identity);
 			// tClone.transform.SetParent(zi.transform.parent);
 			// tClone.transform.position = new Vector3 (-300, 50, 0);
 			Text t = zi.GetComponent<Text> ();
 			t.enabled = true;
-			t.text = s;
+			t.text = datum.Key +": "+datum.Value;
 			idx += 1;
 		}
 		if (zCurr) {

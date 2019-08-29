@@ -63,15 +63,16 @@ public class CSVReader
                 string value = values[j]; 
                 value = value.TrimStart(TRIM_CHARS).TrimEnd(TRIM_CHARS).Replace("\\", ""); // This is where the values are parsed
                 record.Add(key, value);
-                              
+                if(i==1){
+                Debug.Log("record: "+key+": "+record[key]);
+                };
             }
             
             //Use the value of OBJECTID as the key for the dictionary
-            //TODO: This assumes OBJECTID is the first column- make  more flexible
-            
+            /***@ TODO: This assumes OBJECTID is the first column- make  more flexible***/
+            // Debug.Log("Adding "+values[0]+", "+record.ToString());
             records.Add(values[0], record);
-            // Debug.Log("Dict entry "+values[0]+"\n"+ZDO);
-                   
+     
         }
         return records; 
     }
