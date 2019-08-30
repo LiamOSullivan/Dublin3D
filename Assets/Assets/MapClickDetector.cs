@@ -9,7 +9,6 @@ IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandle
     void Start()
     {
         addPhysicsRaycaster();
-
         mapManager = GameObject.Find("MapManager").GetComponent<MapManager>();
 	
     }
@@ -27,7 +26,7 @@ IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandle
 
     {
 		//Debug.Log ("Pointer Click: ");
-        mapManager.mapclick(gameObject);
+        mapManager.mapclick(gameObject); //mapclick returns the record for the zone so the UI could access the text from here or in MapManager
     }
 
     public void OnPointerDown(PointerEventData eventData)

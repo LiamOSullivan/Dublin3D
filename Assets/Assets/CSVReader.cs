@@ -11,30 +11,29 @@ public class CSVReader
     static string SPLIT_RE = @",(?=(?:[^""]*""[^""]*"")*(?![^""]*""))"; // Define delimiters, regular expression craziness
     static string LINE_SPLIT_RE = @"\r\n|\n\r|\n|\r"; // Define line delimiters, regular experession craziness
     static char[] TRIM_CHARS = { '\"' };
-
-     
-
     public static Dictionary<string, Dictionary<string, string>> ReadFile(string file, string key_) //Declare method
     {
-        Debug.Log("CSVReader is reading " + file); // Print filename, make sure parsed correctly
-
-        /***TODO: Add UI field that allows the keying field to be selected? ***/
+        Debug.Log("CSVReader is trying to read " + file); // Print filename, make sure parsed correctly
 
         //Put all data in a dictionary keyed by a string (e.g. GUID, OBJECTID or some other index accessible from the shape files)
         //The object cotaining each record from each row is itself a dictionary
         var records = new Dictionary<string, Dictionary<string, string>>(); 
         
         //Load the file named in the argument of the function as a TextAsset
-        /*** TODO: Is this step necessary? ***/
-        TextAsset data = Resources.Load(file) as TextAsset; 
-        Debug.Log("TextAsset Data loaded:\n" + data); // Print raw data, make sure parsed correctly
+        TextAsset data = Resources.Load(file) as TextAsset;
+        
+        if(data==null){
+            return null;
+        }
+
+        // Debug.Log("TextAsset Data loaded:\n" + data); // Print raw data, make sure parsed correctly
         
         // Extract the text from the TextAsset
         var rows = Regex.Split(data.text, LINE_SPLIT_RE); // Split data.text into rows using LINE_SPLIT_RE characters
         /*** TODO: Set a default object if data is empty or corrupted ***/
         if (rows.Length <= 1) return records; //Check that there is more than one line
         string [] headers = Regex.Split(rows[0], SPLIT_RE); //Split header (element 0 from top row of CSV)
-        Debug.Log("headers:\n" + string.Join(", ",headers));
+        // Debug.Log("headers:\n" + string.Join(", ",headers));
       
         // Loop through rows array, add each to outer Dictionary as a record (ignore top row with headers)keyed with the chosen header as index
         // Within each record add the available values for each variable keyed with the corresponding header
@@ -45,12 +44,12 @@ public class CSVReader
             // Debug.Log("line #"+i+": " + rows[i]);
             var values = Regex.Split(rows[i], SPLIT_RE); //Split line according to SPLIT_RE, store in var (usually string array)
             if (values.Length == 0 || values[0] == "") {
-                Debug.Log("Values len ==0 ");
+                Debug.Log("ERROR: No rows of data were found in the input file "+file);
                 continue; // Skip to end of loop if value is 0 length OR first value is empty
             }
             
             if (values.Length != headers.Length) {
-                Debug.Log("Header count and values count mismatch");
+                Debug.Log("ERROR:  Header count and number of row values count mismatch in file "+file);
                 continue; // Skip if the number of values != no of headers
             }
 
@@ -63,9 +62,9 @@ public class CSVReader
                 string value = values[j]; 
                 value = value.TrimStart(TRIM_CHARS).TrimEnd(TRIM_CHARS).Replace("\\", ""); // This is where the values are parsed
                 record.Add(key, value);
-                if(i==1){
-                Debug.Log("record: "+key+": "+record[key]);
-                };
+                // if(i==1){
+                // Debug.Log("record: "+key+": "+record[key]);
+                // };
             }
             
             //Use the value of OBJECTID as the key for the dictionary
