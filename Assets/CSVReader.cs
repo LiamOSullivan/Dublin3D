@@ -4,126 +4,76 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-// Taken from here: https://bravenewmethod.com/2014/09/13/lightweight-csv-reader-for-unity/
-// Comments
-
-// Code parses a CSV, converting values into ints or floats if able, and returning a List<Dictionary<string, object>>.
-
+  /* This reader takes a flat CSV file with header columns and creates a Dictionary for each row of data. 
+    All of these records are in turn stored in a Dictionary*/
 public class CSVReader
 {
     static string SPLIT_RE = @",(?=(?:[^""]*""[^""]*"")*(?![^""]*""))"; // Define delimiters, regular expression craziness
     static string LINE_SPLIT_RE = @"\r\n|\n\r|\n|\r"; // Define line delimiters, regular experession craziness
     static char[] TRIM_CHARS = { '\"' };
 
-    public static List<Dictionary<string, object>> Read(string file) //Declare method
+     
+
+    public static Dictionary<string, Dictionary<string, string>> ReadFile(string file, string key_) //Declare method
     {
         Debug.Log("CSVReader is reading " + file); // Print filename, make sure parsed correctly
 
-        var list = new List<Dictionary<string, object>>(); //declare dictionary list
-        
-        TextAsset data = Resources.Load(file) as TextAsset; //Loads the TextAsset named in the file argument of the function
+        /***TODO: Add UI field that allows the keying field to be selected? ***/
 
+        //Put all data in a dictionary keyed by a string (e.g. GUID, OBJECTID or some other index accessible from the shape files)
+        //The object cotaining each record from each row is itself a dictionary
+        var records = new Dictionary<string, Dictionary<string, string>>(); 
+        
+        //Load the file named in the argument of the function as a TextAsset
+        /*** TODO: Is this step necessary? ***/
+        TextAsset data = Resources.Load(file) as TextAsset; 
         Debug.Log("TextAsset Data loaded:\n" + data); // Print raw data, make sure parsed correctly
-
-        var lines = Regex.Split(data.text, LINE_SPLIT_RE); // Split data.text into lines using LINE_SPLIT_RE characters
-
-        if (lines.Length <= 1) return list; //Check that there is more than one line
-
-        string [] headers = Regex.Split(lines[0], SPLIT_RE); //Split header (element 0)
-        Debug.Log("headers:\n" + string.Join(", ",headers));
-
-        /*TODO: Add UI field that allows the keying value to be selected */
-        var dict = new Dictionary<string, object>(); //Put all data in a dictionary keyed by e.g. OBJECTID
         
-        // New way: Loop through lines to add to Dictionary
-        for (var i = 1; i < lines.Length; i++)
-        {   
-            Debug.Log("line #"+i+": " + lines[i]);
-            var values = Regex.Split(lines[i], SPLIT_RE); //Split lines according to SPLIT_RE, store in var (usually string array)
+        // Extract the text from the TextAsset
+        var rows = Regex.Split(data.text, LINE_SPLIT_RE); // Split data.text into rows using LINE_SPLIT_RE characters
+        /*** TODO: Set a default object if data is empty or corrupted ***/
+        if (rows.Length <= 1) return records; //Check that there is more than one line
+        string [] headers = Regex.Split(rows[0], SPLIT_RE); //Split header (element 0 from top row of CSV)
+        Debug.Log("headers:\n" + string.Join(", ",headers));
+      
+        // Loop through rows array, add each to outer Dictionary as a record (ignore top row with headers)keyed with the chosen header as index
+        // Within each record add the available values for each variable keyed with the corresponding header
+        for (var i = 1; i < rows.Length; i++)
+
+        {
+            Dictionary<string, string> record = new Dictionary <string, string>();   
+            // Debug.Log("line #"+i+": " + rows[i]);
+            var values = Regex.Split(rows[i], SPLIT_RE); //Split line according to SPLIT_RE, store in var (usually string array)
             if (values.Length == 0 || values[0] == "") {
                 Debug.Log("Values len ==0 ");
-                continue; // Skip to end of loop (continue) if value is 0 length OR first value is empty
+                continue; // Skip to end of loop if value is 0 length OR first value is empty
             }
             
             if (values.Length != headers.Length) {
                 Debug.Log("Header count and values count mismatch");
-                continue; // Skip to end of loop (continue) if value is 0 length OR first value is empty
+                continue; // Skip if the number of values != no of headers
             }
 
-            var valuesObject = new {
-                field1 = "test field1",
-                field2 = 1234
-            };
-
-            // Loop through every header
-            for (var j = 0; j < headers.Length && j < values.Length; j++)
+            // Loop through every header and add the record to the inner Dictionary for each record
+            for (var j = 0; j < headers.Length; j++)
             {
-                string value = values[j]; // Set local variable value
-                value = value.TrimStart(TRIM_CHARS).TrimEnd(TRIM_CHARS).Replace("\\", ""); // Trim characters
-                object finalvalue = value; //set final value
-                            
-
-                // int n; // Create int, to hold value if int
-
-                // float f; // Create float, to hold value if float
-
-                // // If-else to attempt to parse value into int or float
-                // if (int.TryParse(value, out n))
-                // {
-                //     finalvalue = n;
-                // }
-                // else if (float.TryParse(value, out f))
-                // {
-                //     finalvalue = f;
-                // }
-                //entry[headers[j]] = finalvalue;
+                string key = headers[j];
+                key = key.TrimStart(TRIM_CHARS).TrimEnd(TRIM_CHARS).Replace("\\", ""); // This is where the headers are parsed
                 
+                string value = values[j]; 
+                value = value.TrimStart(TRIM_CHARS).TrimEnd(TRIM_CHARS).Replace("\\", ""); // This is where the values are parsed
+                record.Add(key, value);
+                if(i==1){
+                Debug.Log("record: "+key+": "+record[key]);
+                };
             }
-
-            dict.Add(values[0], valuesObject);
-            Debug.Log("Dict entry "+values[0]);//" : "+dict[values[0]]);
-            //
             
-            
-            
-            // var entry = new { Field1 = i };
-            // dict.Add(""+i, entry);           
+            //Use the value of OBJECTID as the key for the dictionary
+            /***@ TODO: This assumes OBJECTID is the first column- make  more flexible***/
+            // Debug.Log("Adding "+values[0]+", "+record.ToString());
+            records.Add(values[0], record);
+     
         }
-
-
-        // Old way: Loop through lines to create a List of Dictionarys
-        for (var i = 1; i < lines.Length; i++)
-        {
-
-            var values = Regex.Split(lines[i], SPLIT_RE); //Split lines according to SPLIT_RE, store in var (usually string array)
-            if (values.Length == 0 || values[0] == "") continue; // Skip to end of loop (continue) if value is 0 length OR first value is empty
-
-            var entry = new Dictionary<string, object>(); // Creates dictionary object
-
-            // Loops through every value
-            for (var j = 0; j < headers.Length && j < values.Length; j++)
-            {
-                string value = values[j]; // Set local variable value
-                value = value.TrimStart(TRIM_CHARS).TrimEnd(TRIM_CHARS).Replace("\\", ""); // Trim characters
-                object finalvalue = value; //set final value
-
-                int n; // Create int, to hold value if int
-
-                float f; // Create float, to hold value if float
-
-                // If-else to attempt to parse value into int or float
-                if (int.TryParse(value, out n))
-                {
-                    finalvalue = n;
-                }
-                else if (float.TryParse(value, out f))
-                {
-                    finalvalue = f;
-                }
-                entry[headers[j]] = finalvalue;
-            }
-            list.Add(entry); // Add Dictionary ("entry" variable) to list
-        }
-        return list; //Return list
+        return records; 
     }
 }

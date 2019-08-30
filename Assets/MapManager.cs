@@ -24,18 +24,23 @@ public class MapManager : MonoBehaviour
 	{
 		mdm = GetComponentInChildren<MapData> ();
 		zi = GameObject.Find ("ZoneInfo");
+		Debug.Log("ZI position: "+zi.transform.position.x 
+		+", "+zi.transform.position.y 
+		+", "+ zi.transform.position.z);
 
 	}
 
 	public void mapclick (GameObject objClicked)
 	{
-//		Debug.Log ("Map Manager | Clicked: " + objClicked.name);
+		Debug.Log ("Map Manager | Clicked: " + objClicked.name);
+
 		if(GameObject.Find ("Canvas").transform.childCount>1){
 			int childIndex = 0;
 			foreach (Transform child in GameObject.Find ("Canvas").transform) {
-				//Debug.Log ("Kid:" +childIndex+"\t"+child);
 				if (childIndex > 0) {
 					GameObject.Destroy (child.gameObject);
+					Debug.Log ("Destroy:" +childIndex+"\t"+child);
+				
 				}
 				childIndex += 1;
 			}		
@@ -43,19 +48,33 @@ public class MapManager : MonoBehaviour
 
 		MeshRenderer mr = objClicked.GetComponent<MeshRenderer> ();
 		mr.material.color = mouseDownColor;
-		zi.GetComponent<Text> ().text = "";
-		List <string> stringList = new List <string> ();
-		stringList = mdm.GetZoneInfo (objClicked.name);
-		int idx = 0;
-		foreach(string s in stringList){
-			GameObject tClone = Instantiate (zi);//, new Vector3(300, -200+(idx * 75), 0), Quaternion.identity);
-			tClone.transform.SetParent(zi.transform.parent);
-			tClone.transform.position = new Vector3 (900, 700+(idx * -100), 0);
-			Text t = tClone.GetComponent<Text> ();
-			t.enabled = true;
-			t.text = s;
+		// zi.GetComponent<Text> ().text = "---";
+		
+		Dictionary <string, string> record = new Dictionary <string, string> ();
+		record = mdm.GetZoneInfo(objClicked.name);
+		Debug.Log ("MapManager | record: " + record);
+
+
+		int idx = 1;
+		List <string[]> displayText = new List<string[]>();
+		Text t = zi.GetComponent<Text> ();
+		foreach(var datum in record){
+			Debug.Log ("datum: " + datum.Key);
+			//datum is a K/V pair
+			if(idx==1){
+				t.enabled = true;
+				t.text = datum.Key +": "+datum.Value;
+			}
+			else{
+				GameObject tClone = Instantiate (zi);//, new Vector3(300, -00+(idx * 75), 0), Quaternion.identity);
+				tClone.transform.SetParent(zi.transform.parent);
+				// Debug.Log("x: "+zi.transform.parent.position.x);
+				tClone.transform.position = new Vector3 (zi.transform.position.x, zi.transform.position.y-(50*idx), zi.transform.position.z);
+				tClone.GetComponent<Text>().text = datum.Key +": "+datum.Value;
+			}
 			idx += 1;
-		}
+		}	
+
 		if (zCurr) {
 			mr = zCurr.GetComponent<MeshRenderer> ();
 			mr.material.color = normalColor;

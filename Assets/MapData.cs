@@ -2,39 +2,48 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 public class MapData : MonoBehaviour
 {
-	// Name of the input file, no extension
+	// Name of the input file (no extension) and key to be used to index the zone data, 
 	public string inputFile;
+	public string inputKey;
 
-	// List for holding data from CSV reader
-	private List<Dictionary<string, object>> zoneList;
-	// The names of cols
+	private Dictionary<string, Dictionary<string, string>> records;
+
 	private List<string> keyList;
 	// Object which will contain instantiated prefabs in hiearchy
 	//public GameObject ZoneHolder;
-
+	
 
 // Use this for initialization
-	void Start ()
-	{
-		// Set list to results of function Reader with argument inputfile
-		zoneList = CSVReader.Read(inputFile);
-		Debug.Log("ZoneList has count: "+zoneList.Count);
-		// String val;
-		
-		Int32 indexConst = 0;
-		// Declare list of strings, fill with keys (column names)
-		keyList = new List<string> (zoneList[indexConst].Keys); //can index any object in the dictionary to get Keys
+	void Start ()	
+	{	
+		//Check if the Input Key field in the Unity editor has an entry
+		/***@TODO Check if Input Key field is a valid key***/
+		if(String.IsNullOrEmpty(inputKey)){
+			inputKey = "OBJECTID"; //default key
+			Debug.Log("Using default key of "+inputKey);
+		}
+		else{			
+			Debug.Log("Using key of "+inputKey);
+		}
 
-		// Print number of keys (using .count)
-		Debug.Log ("There are " + keyList.Count + " columns in the CSV");
-		foreach (string key in keyList) {
-			Debug.Log ("Key is " + key);
-			Debug.Log("ZoneList: "+zoneList[0]["OBJECTID"]);
-		}	
+		records = CSVReader.ReadFile(inputFile, inputKey);
+		Debug.Log("File "+inputFile +" has records count of "+records.Count);
+		
+
+		// Declare list of strings, fill with keys (column names)
+		//  keyList = new List<string> (zoneDict[indexConst]); //can index any object in the dictionary to get Keys
+
+		// // Print number of keys (using .Count)
+		// Debug.Log ("There are " + keyList.Count + " columns in the CSV");
+		// foreach (string key in keyList) {
+		// 	Debug.Log ("Key is " + key);
+		// 	Debug.Log("zoneDict: "+zoneDict[0]["OBJECTID"]);
+		// }	
 	}
 	
 	// Update is called once per frame
@@ -43,32 +52,20 @@ public class MapData : MonoBehaviour
 		
 	}
 
-	public List <string> GetZoneInfo (string n_)
+	public Dictionary <string, string> GetZoneInfo (string key_)
 	{
-		//String info = "";
-		//ZoneInfoObject ios = new ZoneInfoObject ("", "");
-		List <string> infoList = new List<string>();
+		Debug.Log("Get info for "+key_);
+		Dictionary <string, string> record;
 		
-		int index;
-		if (Int32.TryParse (n_, out index)) {
-			Debug.Log ("Returning info for Zone index" + index);
-//			ios = new InfoObject [keyList.Count];
-			// for (int i = 0; i < keyList.Count; i += 1) {
-			// 	string name = keyList [i]; //i.e. "object_id"
-			// 	//Debug.Log (" | " + zoneList [index] [name]); //get the object_id entry for each row
-			// 	//info = String.Concat(info, zoneList [index-1][name] + "\t");
-			// 	infoList.Add(""+zoneList [index-1][name]);
-
-			// }
-			//Debug.Log (" Info List has size: \n" + infoList.Count);
-			//Debug.Log (" Zone Info: \n" + info);
-			//Debug.Log (" Zone Info Object: " + ios.ObjectID+ "\t : \t"+ios.ZoneOrig);
-			infoList.Add("Info Available");
-			return infoList;
-		} else {
-			//Debug.Log ("MapData | Could not find zone info");
-			infoList.Add("No Info Available");
-			return infoList;
+		if(records.ContainsKey(key_)){
+			record = records[key_];
 		}
+		else{
+			record = new Dictionary <string, string>(){ 
+				{key_ , "No data found"}
+			};
+		} 
+
+		return record;
 	}
 }
